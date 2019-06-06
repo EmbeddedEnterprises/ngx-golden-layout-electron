@@ -1,6 +1,7 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+import { triggerAsyncId } from 'async_hooks';
 
 let win, serve;
 const args = process.argv.slice(1);
@@ -19,7 +20,17 @@ function createWindow() {
     height: size.height,
     webPreferences: {
       nodeIntegration: true,
+      nativeWindowOpen: true,
     },
+  });
+
+  ipcMain.on('test', (event, arg) => {
+    console.log(arg);
+    event.returnValue = arg;
+  });
+  ipcMain.on('test2', (event, arg) => {
+    console.log('test2', arg);
+    event.returnValue = arg;
   });
 
   if (serve) {
@@ -46,7 +57,6 @@ function createWindow() {
     // when you should delete the corresponding element.
     win = null;
   });
-
 }
 
 try {

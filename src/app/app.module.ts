@@ -1,49 +1,154 @@
 import 'reflect-metadata';
 import '../polyfills';
+
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule, Component, Injectable, OnInit, OnDestroy, Inject } from '@angular/core';
 
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import {
+  GoldenLayoutModule,
+  GoldenLayoutService,
+  GoldenLayoutConfiguration,
+  MultiWindowService,
+  GlOnClose,
+  FallbackComponent,
+  FailedComponent,
+} from 'ngx-golden-layout';
+import { CommonModule } from '@angular/common';
 
-import { AppRoutingModule } from './app-routing.module';
+const ipcRenderer = window.require('electron').ipcRenderer as Electron.IpcRenderer;
+ipcRenderer.send('test', `Hello from app.module.ts in window ${window.document.location}`);
 
-// NG Translate
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+@MultiWindowService<FooService>()
+@Injectable()
+export class FooService {
+  constructor() {
+    console.log(`Create FooService`);
+    const result = ipcRenderer.sendSync('test2', `Hello from fooService`);
+    console.log('result in foo service', result);
+  }
+}
 
-import { ElectronService } from './providers/electron.service';
+@MultiWindowService<TestService>()
+@Injectable()
+export class TestService {
+  public id: string;
+  constructor(private _foo: FooService) {
+    console.log(`FooService: `, _foo);
+    this.id = '_' + Math.random().toString(36).substr(2, 9);
+    console.log(`Creating testService, id: ${this.id}`);
+  }
+}
 
-import { WebviewDirective } from './directives/webview.directive';
+@Component({
+  template: `<div class="spawn-new"></div><golden-layout-root></golden-layout-root>`,
+  selector: `app-root`,
+})
+export class RootComponent {
+  // test delayed component construction
+  constructor(private srv: GoldenLayoutService) {
+    if (!window.opener) {
+      setTimeout(() => {
+        srv.createNewComponent({
+          componentName: 'app-tested',
+          component: null,
+        });
+      }, 1000);
+    }
+  }
+}
+@Component({
+  template: `<h1>Test</h1><span>{{test.id}}</span>`,
+  selector: `app-test`,
+})
+export class TestComponent {
+  constructor(public test: TestService) { }
+}
 
-import { AppComponent } from './app.component';
-import { HomeComponent } from './components/home/home.component';
+@Component({
+  template: `<h1>Test2</h1>`,
+  selector: `app-tested`,
+})
+export class TestedComponent implements OnInit, OnDestroy, GlOnClose {
+  constructor() { }
 
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+  public ngOnInit(): void {
+    (window.opener || window).console.log(`ngoninit`);
+  }
+  public ngOnDestroy(): void {
+    (window.opener || window).console.log(`ngondestroy`);
+  }
+
+  public glOnClose(): Promise<void> {
+    console.log(`glOnClose`);
+    return new Promise((resolve, reject) => {
+      console.log(`glonclose promise`);
+      setTimeout(() => {
+        console.log(`resolving`);
+        resolve();
+      }, 1000);
+    });
+  }
+}
+
+/* Provide a fallback for components which couldn't be found. */
+@Component({
+  template: `<h1>Failed to load {{componentName}}</h1>`,
+  selector: `app-failed`,
+})
+export class FailComponent {
+constructor(@Inject(FailedComponent) public componentName: string) { }
+}
+
+const config: GoldenLayoutConfiguration = {
+  components: [
+    {
+      component: TestComponent,
+      componentName: 'app-test'
+    },
+    {
+      component: TestedComponent,
+      componentName: 'app-tested'
+    }
+  ],
+  defaultLayout: {
+    content: [
+      {
+        type: "row",
+        content: [
+          {
+            type: 'component',
+            componentName: 'app-test',
+            title: 'Test 1',
+          },
+          {
+            type: 'component',
+            componentName: 'app-test',
+            title: 'Test 2',
+          }
+        ]
+      }
+    ]
+  }
 }
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    WebviewDirective
-  ],
+  declarations: [RootComponent, TestComponent, TestedComponent, FailComponent],
+  entryComponents: [TestComponent, FailComponent, TestedComponent],
   imports: [
     BrowserModule,
-    FormsModule,
-    HttpClientModule,
-    AppRoutingModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (HttpLoaderFactory),
-        deps: [HttpClient]
-      }
-    })
+    CommonModule,
+    BrowserAnimationsModule,
+    GoldenLayoutModule.forRoot(config),
   ],
-  providers: [ElectronService],
-  bootstrap: [AppComponent]
+  providers: [
+    TestService,
+    FooService,
+    {
+      provide: FallbackComponent,
+      useValue: FailComponent,
+    },
+  ],
+  bootstrap: [RootComponent]
 })
 export class AppModule { }
