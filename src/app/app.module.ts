@@ -52,7 +52,7 @@ export class RootComponent {
         srv.createNewComponent({
           componentName: 'app-tested',
           component: null,
-        });
+        }, 'Your custom title here');
       }, 1000);
     }
   }
@@ -119,7 +119,7 @@ const config: GoldenLayoutConfiguration = {
           {
             type: 'component',
             componentName: 'app-test',
-            title: 'Test 1',
+            title: 'My custom title',
           },
           {
             type: 'component',
