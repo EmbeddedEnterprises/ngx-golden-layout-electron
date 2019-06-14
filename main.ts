@@ -16,6 +16,7 @@ function createWindow() {
   win = new BrowserWindow({
     x: 0,
     y: 0,
+    frame: false,
     width: size.width,
     height: size.height,
     webPreferences: {
@@ -23,6 +24,22 @@ function createWindow() {
       nativeWindowOpen: true,
     },
   });
+
+  win.webContents.on('new-window', (event, url: string, frameName, disposition, options, additionalFeatures) => {
+    console.log(event, url, frameName, options, additionalFeatures);
+    if (url.indexOf("gl-window") >= 0) {
+    // open window as modal
+      event.preventDefault();
+      Object.assign(options, {
+        frame: true,
+        width: 100,
+        height: 100,
+        left: 0,
+        top: 0,
+      });
+      event.newGuest = new BrowserWindow(options)
+    }
+  })
 
   ipcMain.on('test', (event, arg) => {
     console.log(arg);
