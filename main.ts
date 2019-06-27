@@ -1,7 +1,6 @@
 import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import { triggerAsyncId } from 'async_hooks';
 
 let win, serve;
 const args = process.argv.slice(1);
@@ -25,9 +24,9 @@ function createWindow() {
     },
   });
 
-  win.webContents.on('new-window', (event, url: string, frameName, disposition, options, additionalFeatures) => {
+  win.webContents.on('new-window', (event, uri: string, frameName, disposition, options, additionalFeatures) => {
     console.log(event, url, frameName, options, additionalFeatures);
-    if (url.indexOf("gl-window") >= 0) {
+    if (uri.indexOf('gl-window') >= 0) {
     // open window as modal
       event.preventDefault();
       Object.assign(options, {
@@ -37,9 +36,9 @@ function createWindow() {
         left: 0,
         top: 0,
       });
-      event.newGuest = new BrowserWindow(options)
+      event.newGuest = new BrowserWindow(options);
     }
-  })
+  });
 
   ipcMain.on('test', (event, arg) => {
     console.log(arg);

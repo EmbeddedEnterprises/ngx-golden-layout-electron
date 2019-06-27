@@ -1,7 +1,7 @@
 import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { platformBrowser } from '@angular/platform-browser';
 
-import { AppModule, AppChildWindowModule } from './app/app.module';
+import { AppModuleNgFactory, AppChildWindowModuleNgFactory } from './app/app.module.ngfactory';
 import { AppConfig } from './environments/environment';
 import { MultiWindowInit } from 'ngx-golden-layout';
 import * as $ from 'jquery';
@@ -19,12 +19,12 @@ if (!window.opener) {
   const baseRootElem = document.createElement('app-root');
   const script = document.body.querySelector('script');
   document.body.insertBefore(baseRootElem, script);
-  platformBrowserDynamic().bootstrapModule(AppModule)
+  platformBrowser().bootstrapModuleFactory(AppModuleNgFactory)
   .catch(err => console.log(err));
 } else {
   const baseAppElem = document.createElement('app-docking');
   const script = document.body.querySelector('script');
   document.body.insertBefore(baseAppElem, script);
-  platformBrowserDynamic().bootstrapModule(AppChildWindowModule)
+  platformBrowser().bootstrapModuleFactory(AppChildWindowModuleNgFactory)
   .catch(err => console.log(err));
 }
