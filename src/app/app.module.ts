@@ -3,21 +3,42 @@ import '../polyfills';
 
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule, Component, Injectable, OnInit, OnDestroy, Inject } from '@angular/core';
+import { NgModule, Component, Injectable, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 
 import {
   GoldenLayoutModule,
-  GoldenLayoutService,
-  GoldenLayoutConfiguration,
+  ComponentRegistryService,
   MultiWindowService,
   GlOnClose,
   FallbackComponent,
   FailedComponent,
+  GoldenLayoutComponent,
+  ComponentType,
 } from 'ngx-golden-layout';
+import * as GoldenLayout from 'golden-layout';
 import { CommonModule } from '@angular/common';
+import { of } from 'rxjs';
 
 const ipcRenderer = window.require('electron').ipcRenderer as Electron.IpcRenderer;
 ipcRenderer.send('test', `Hello from app.module.ts in window ${window.document.location}`);
+
+const content: GoldenLayout.Config = {
+  content: [{
+    type: 'row',
+    content: [
+      {
+        type: 'component',
+        componentName: 'app-test',
+        title: 'My custom title',
+      },
+      {
+        type: 'component',
+        componentName: 'app-test',
+        title: 'Test 2',
+      }
+    ]
+  }],
+};
 
 @MultiWindowService<FooService>()
 @Injectable()
@@ -41,18 +62,24 @@ export class TestService {
 }
 
 @Component({
-  template: `<div class="spawn-new"></div><golden-layout-root></golden-layout-root>`,
+  template: `<div class="spawn-new"></div><golden-layout-root [layout]="layoutConfig$"></golden-layout-root>`,
   selector: `app-root`,
 })
-export class RootComponent {
+export class RootComponent implements OnInit {
+  @ViewChild(GoldenLayoutComponent, { static: true })
+  cmp: GoldenLayoutComponent;
+
+  layoutConfig$ = of(content);
+
   // test delayed component construction
-  constructor(private srv: GoldenLayoutService) {
+  ngOnInit() {
     if (!window.opener) {
       setTimeout(() => {
-        srv.createNewComponent({
+        this.cmp.createNewComponent({
           componentName: 'app-tested',
-          component: null,
-        }, 'Your custom title here');
+          title: 'Custom Title',
+          type: 'component',
+        });
       }, 1000);
     }
   }
@@ -100,37 +127,16 @@ export class FailComponent {
 constructor(@Inject(FailedComponent) public componentName: string) { }
 }
 
-const config: GoldenLayoutConfiguration = {
-  components: [
-    {
-      component: TestComponent,
-      componentName: 'app-test'
-    },
-    {
-      component: TestedComponent,
-      componentName: 'app-tested'
-    }
-  ],
-  defaultLayout: {
-    content: [
-      {
-        type: "row",
-        content: [
-          {
-            type: 'component',
-            componentName: 'app-test',
-            title: 'My custom title',
-          },
-          {
-            type: 'component',
-            componentName: 'app-test',
-            title: 'Test 2',
-          }
-        ]
-      }
-    ]
+const COMPONENT_TYPES: ComponentType[] = [
+  {
+    type: TestComponent,
+    name: 'app-test'
+  },
+  {
+    type: TestedComponent,
+    name: 'app-tested'
   }
-}
+];
 
 @NgModule({
   declarations: [RootComponent, TestComponent, TestedComponent, FailComponent],
@@ -139,7 +145,7 @@ const config: GoldenLayoutConfiguration = {
     BrowserModule,
     CommonModule,
     BrowserAnimationsModule,
-    GoldenLayoutModule.forRoot(config),
+    GoldenLayoutModule.forRoot(COMPONENT_TYPES),
   ],
   providers: [
     TestService,
