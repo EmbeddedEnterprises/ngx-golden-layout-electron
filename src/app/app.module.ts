@@ -8,7 +8,6 @@ import { RouterModule, Routes } from '@angular/router';
 
 import {
   GoldenLayoutModule,
-  FallbackComponent,
 } from 'ngx-golden-layout';
 import { CommonModule } from '@angular/common';
 import { TestComponent, TestedComponent, FailComponent, LandingPageComponent } from './components';
@@ -40,10 +39,9 @@ const COMPONENTS = [
  */
 @NgModule({
   declarations: COMPONENTS,
-  entryComponents: COMPONENTS,
   imports: [
     CommonModule,
-    GoldenLayoutModule.forRoot(COMPONENT_TYPES),
+    GoldenLayoutModule.forRoot(COMPONENT_TYPES, FailComponent),
   ],
   exports: COMPONENTS,
 })
@@ -69,10 +67,6 @@ export class AppRoutingModule {}
   providers: [
     TestService,
     FooService,
-    {
-      provide: FallbackComponent,
-      useValue: FailComponent,
-    },
   ],
   bootstrap: [RootComponent]
 })
@@ -88,10 +82,6 @@ export class AppModule { }
   providers: [
     TestService,
     FooService,
-    {
-      provide: FallbackComponent,
-      useValue: FailComponent,
-    },
   ],
   bootstrap: [DockingComponent] // Directly bootstrap the docking component
 })

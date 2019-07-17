@@ -3,7 +3,6 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule, AppChildWindowModule } from './app/app.module';
 import { AppConfig } from './environments/environment';
-import { MultiWindowInit } from 'ngx-golden-layout';
 import * as $ from 'jquery';
 
 
@@ -11,8 +10,6 @@ if (AppConfig.production) {
   enableProdMode();
 }
 
-
-MultiWindowInit();
 window['$'] = $;
 
 if (!window.opener) {
