@@ -6,6 +6,8 @@ It uses:
 - ngx-golden-layout
 - Angular 8
 - Electron 5
+---
+- It also uses the new ivy compiler yielding better performance and less app bundle size!
 
 ## Getting Started
 
