@@ -1,5 +1,5 @@
-import { MultiWindowService } from "ngx-golden-layout";
-import { Injectable } from "@angular/core";
+import { MultiWindowService } from 'ngx-golden-layout';
+import { Injectable } from '@angular/core';
 
 const ipcRenderer = window.require('electron').ipcRenderer as Electron.IpcRenderer;
 

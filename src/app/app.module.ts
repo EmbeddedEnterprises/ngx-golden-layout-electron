@@ -41,7 +41,16 @@ const COMPONENTS = [
   declarations: COMPONENTS,
   imports: [
     CommonModule,
-    GoldenLayoutModule.forRoot(COMPONENT_TYPES, FailComponent),
+    GoldenLayoutModule.forRoot(COMPONENT_TYPES, FailComponent, [{
+      name: '@angular/core',
+      loader: import('@angular/core'),
+    }, {
+      name: '@angular/common',
+      loader: import('@angular/common'),
+    }, {
+      name: 'ngx-golden-layout',
+      loader: import('ngx-golden-layout'),
+    }]),
   ],
   exports: COMPONENTS,
 })
