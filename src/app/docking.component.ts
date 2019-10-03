@@ -8,21 +8,7 @@ import { TestComponent, TestedComponent } from './components';
  * Definition of the initial layout
  */
 const content: GoldenLayout.Config = {
-  content: [{
-    type: 'row',
-    content: [
-      {
-        type: 'component',
-        componentName: 'app-test',
-        title: 'My custom title',
-      },
-      {
-        type: 'component',
-        componentName: 'app-test',
-        title: 'Test 2',
-      }
-    ]
-  }],
+  content: [],
 };
 
 /**
