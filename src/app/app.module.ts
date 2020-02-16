@@ -13,8 +13,9 @@ import { CommonModule } from '@angular/common';
 import { TestComponent, TestedComponent, FailComponent, LandingPageComponent } from './components';
 import { TestService, FooService } from './services';
 import { DockingComponent, COMPONENT_TYPES, RootComponent } from './docking.component';
+import { IpcRenderer } from 'electron';
 
-const ipcRenderer = window.require('electron').ipcRenderer as Electron.IpcRenderer;
+const ipcRenderer = (window as any).require('electron').ipcRenderer as IpcRenderer;
 ipcRenderer.send('test', `Hello from app.module.ts in window ${window.document.location}`);
 
 const ROUTES: Routes = [

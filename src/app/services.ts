@@ -1,9 +1,10 @@
 import { MultiWindowService } from 'ngx-golden-layout';
 import { Injectable } from '@angular/core';
+import { IpcRenderer } from 'electron';
 
-const ipcRenderer = window.require('electron').ipcRenderer as Electron.IpcRenderer;
+const ipcRenderer = (window as any).require('electron').ipcRenderer as IpcRenderer;
 
-@MultiWindowService<FooService>()
+@MultiWindowService<FooService>('foo')
 @Injectable()
 export class FooService {
   constructor() {
@@ -13,7 +14,7 @@ export class FooService {
   }
 }
 
-@MultiWindowService<TestService>()
+@MultiWindowService<TestService>('test')
 @Injectable()
 export class TestService {
   public id: string;
