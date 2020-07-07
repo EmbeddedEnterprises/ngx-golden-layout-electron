@@ -61,7 +61,7 @@
     "codelyzer": "^5.1.2",
     "conventional-changelog-cli": "2.0.21",
     "core-js": "2.6.1",
-    "electron": "^8.0.1",
+    "electron": "^8.2.4",
     "electron-builder": "20.44.4",
     "electron-reload": "1.4.0",
     "golden-layout": "^1.5.9",
